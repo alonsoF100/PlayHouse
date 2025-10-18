@@ -17,3 +17,8 @@ type UserHandlerMoney struct {
 	Nickname string
 	Money    int
 }
+type UserHandlerGame struct {
+	Nickname string
+	Color    string
+	Bet      int
+}

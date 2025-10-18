@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"PlayHouse/games"
 	"PlayHouse/user"
 	"encoding/json"
 	"fmt"
@@ -45,6 +46,37 @@ func HandlerNewUser(usersList map[string]*user.User) http.HandlerFunc {
 			Rating:   validUser.GetRating(),
 		}
 		json.NewEncoder(w).Encode(responseUser)
+	}
+}
+func HandlerGameRoulette(usersList map[string]*user.User) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var userGame UserHandlerGame
+		if err := json.NewDecoder(r.Body).Decode(&userGame); err != nil {
+			fmt.Println("err ", err)
+			http.Error(w, "Invalid JSON format", http.StatusBadRequest)
+			return
+		}
+		user, exist := usersList[userGame.Nickname]
+		if !exist {
+			http.Error(w, "user not found", http.StatusNotFound)
+			return
+		}
+		if userGame.Color != "red" && userGame.Color != "green" && userGame.Color != "black" {
+			http.Error(w, "Invalid JSON format", http.StatusBadRequest)
+			return
+		}
+		games.Roulette(user, userGame.Color, userGame.Bet)
+		responseUser := UserResponse{
+			Nickname: user.GetNickname(),
+			Balance:  user.GetBalance(),
+			Rating:   user.GetRating(),
+		}
+		w.Header().Set("Content-Type", "text/plain")
+		fmt.Fprintln(w, "вы сыграли!))))")
+		fmt.Println("он сыграл!")
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(responseUser)
+
 	}
 }
 
